@@ -3,8 +3,9 @@ from abc import abstractmethod
 
 class Retrieval:
 	__metaclass__ = abc.ABCMeta
+
 	@classmethod
-	def __init__(self): #constructor for the abstract class
+	def __init__(self):  # constructor for the abstract class
 		pass
 
 	@classmethod
@@ -12,7 +13,6 @@ class Retrieval:
 		longSnippets = question['contexts']['long_snippets']
 		fullLongSnippets = ' '.join(longSnippets)
 		return fullLongSnippets
-
 
 	@classmethod
 	def getShortSnippets(self, question):

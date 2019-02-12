@@ -5,10 +5,12 @@ from sklearn.externals import joblib
 from Retrieval import Retrieval
 from Featurizer import Featurizer
 from CountFeaturizer import CountFeaturizer
+from TfidfFeaturizer import TfidfFeaturizer
 from Classifier import Classifier
 from MultinomialNaiveBayes import MultinomialNaiveBayes
+from SupportVectorMachine import SupportVectorMachine
+from MultiLayerPerceptron import MultiLayerPerceptron
 from Evaluator import Evaluator
-
 
 
 class Pipeline(object):
@@ -37,35 +39,36 @@ class Pipeline(object):
 			
 		return X, Y
 
-
 	def question_answering(self):
 		dataset_type = self.trainData['origin']
 		candidate_answers = self.trainData['candidates']
-		X_train, Y_train = self.makeXY(self.trainData['questions'][0:10])
+		X_train, Y_train = self.makeXY(self.trainData['questions'][0:1000])
 		X_val, Y_val_true = self.makeXY(self.valData['questions'])
 
-		#featurization
+		# featurization
 		X_features_train, X_features_val = self.featurizerInstance.getFeatureRepresentation(X_train, X_val)
 		self.clf = self.classifierInstance.buildClassifier(X_features_train, Y_train)
 		
-		#Prediction
+		# Prediction
 		Y_val_pred = self.clf.predict(X_features_val)
-		
 
 		self.evaluatorInstance = Evaluator()
-		a =  self.evaluatorInstance.getAccuracy(Y_val_true, Y_val_pred)
-		p,r,f = self.evaluatorInstance.getPRF(Y_val_true, Y_val_pred)
+		a = self.evaluatorInstance.getAccuracy(Y_val_true, Y_val_pred)
+		p, r, f = self.evaluatorInstance.getPRF(Y_val_true, Y_val_pred)
 		print "Accuracy: " + str(a)
-		print "Precision: " + str(a)
-		print "Recall: " + str(a)
-		print "F-measure: " + str(a)
+		print "Precision: " + str(p)
+		print "Recall: " + str(r)
+		print "F-measure: " + str(f)
 		
 
-
 if __name__ == '__main__':
-	trainFilePath = sys.argv[1] #please give the path to your reformatted quasar-s json train file
-	valFilePath = sys.argv[2] # provide the path to val file
+	trainFilePath = sys.argv[1]  # please give the path to your reformatted quasar-s json train file
+	valFilePath = sys.argv[2]  # provide the path to val file
 	retrievalInstance = Retrieval()
-	featurizerInstance = CountFeaturizer()
-	classifierInstance = MultinomialNaiveBayes()
+	# featurizerInstance = CountFeaturizer()
+	featurizerInstance = TfidfFeaturizer()
+
+	# classifierInstance = MultinomialNaiveBayes()
+	# classifierInstance = SupportVectorMachine()
+	classifierInstance = MultiLayerPerceptron()
 	trainInstance = Pipeline(trainFilePath, valFilePath, retrievalInstance, featurizerInstance, classifierInstance)
