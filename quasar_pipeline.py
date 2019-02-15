@@ -42,7 +42,7 @@ class Pipeline(object):
 	def question_answering(self):
 		dataset_type = self.trainData['origin']
 		candidate_answers = self.trainData['candidates']
-		X_train, Y_train = self.makeXY(self.trainData['questions'][0:1000])
+		X_train, Y_train = self.makeXY(self.trainData['questions'][0:3000])
 		X_val, Y_val_true = self.makeXY(self.valData['questions'])
 
 		# featurization
@@ -51,6 +51,15 @@ class Pipeline(object):
 		
 		# Prediction
 		Y_val_pred = self.clf.predict(X_features_val)
+		fwrite = open("count+mlp.tsv", "wb")
+		# print(Y_val_pred)
+		# print(Y_val_true)
+		errors = []
+		for i, y in enumerate(Y_val_pred):
+			line = str(Y_val_true[i]) + "\t" + str(int(Y_val_pred[i] == Y_val_true[i]))
+			errors.append(line)
+			fwrite.write(line + "\n")
+		# print(errors)
 
 		self.evaluatorInstance = Evaluator()
 		a = self.evaluatorInstance.getAccuracy(Y_val_true, Y_val_pred)
@@ -65,8 +74,8 @@ if __name__ == '__main__':
 	trainFilePath = sys.argv[1]  # please give the path to your reformatted quasar-s json train file
 	valFilePath = sys.argv[2]  # provide the path to val file
 	retrievalInstance = Retrieval()
-	# featurizerInstance = CountFeaturizer()
-	featurizerInstance = TfidfFeaturizer()
+	featurizerInstance = CountFeaturizer()
+	# featurizerInstance = TfidfFeaturizer()
 
 	# classifierInstance = MultinomialNaiveBayes()
 	# classifierInstance = SupportVectorMachine()
